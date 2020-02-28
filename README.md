@@ -6,7 +6,7 @@ The data used to generate the code was from SLF PA & MD operations.
 
 Any code that looks like the following produces output when using Rmarkdown:
 
-```{r}
+```{r, echo=TRUE}
 print(example %>% filter(example_variable <= 32 & example_variable >=5)
 
 ```
