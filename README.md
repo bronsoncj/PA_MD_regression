@@ -35,7 +35,10 @@ tabs in the ui for the final output.
 
 If there's an asterisk (*) wrapping the text then that means some sort of effect is being added to the text itself.
 
-1. /* for italics.
+1. `* for italics.
 2. ** for bold.
 3. *** for italics and bold.
+
+Making an Rmarkdown file uses a lot of the same rules as making a README.md does here on github, so if you're familiar with 
+that then the .rmd should be more recognizable.
 
