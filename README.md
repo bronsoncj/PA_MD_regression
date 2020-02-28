@@ -24,8 +24,10 @@ This means that I did not want the code to actually show up in the final product
 Many arguments can be used inside of the {r, ...} chunk for multiple different reasons, like handling errors and so on.
 
 If there is a # inside of:
+
     ```{r, ...}
-     # some text
+     
+    # some text
 
     ggplot(example_ds, aes(x, y, fill) +
     geom_point() + ...
