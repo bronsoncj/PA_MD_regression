@@ -11,8 +11,12 @@ Any code that looks like the following produces output when using Rmarkdown:
 print(example %>% filter(example_variable <= 32 & example_variable >=5)
 
 ```
-``
+
 In the .rmd file you'll see a lot of the following:
+
+
+
+
 ```
 {r, echo=FALSE}
 ```
