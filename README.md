@@ -20,6 +20,9 @@ If there is a # inside of:
 {r, ...}
 #some text
 
+ggplot(example_ds, aes(x, y, fill) +
+geom_point() + ...
+
 ```
 it's a comment.
 
