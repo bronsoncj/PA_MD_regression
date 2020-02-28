@@ -16,8 +16,9 @@ In the .rmd file you'll see a lot of the following:
 
 
 
-    ```
-    {r, echo=FALSE}
+    ```{r, echo=FALSE}
+    
+    
     ```
 This means that I did not want the code to actually show up in the final product.
 Many arguments can be used inside of the {r, ...} chunk for multiple different reasons, like handling errors and so on.
