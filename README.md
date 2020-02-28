@@ -16,21 +16,20 @@ In the .rmd file you'll see a lot of the following:
 
 
 
-```
-{r, echo=FALSE}
-```
+    ```
+    {r, echo=FALSE}
+    ```
 This means that I did not want the code to actually show up in the final product.
 Many arguments can be used inside of the {r, ...} chunk for multiple different reasons, like handling errors and so on.
 
 If there is a # inside of:
-```
-{r, ...}
-#some text
+    ```{r, ...}
+    #some text
 
-ggplot(example_ds, aes(x, y, fill) +
-geom_point() + ...
+    ggplot(example_ds, aes(x, y, fill) +
+    geom_point() + ...
 
-```
+    ```
 it's a comment.
 
 If there's a # outside of the r code chunk it means the following string is a header.
