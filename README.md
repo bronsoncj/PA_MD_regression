@@ -7,9 +7,10 @@ The data used to generate the code was from SLF PA & MD operations.
 Any code that looks like the following produces output when using Rmarkdown:
 
 ```
-{r, echo=TRUE}
+```
+{r,...}
 print(example %>% filter(example_variable <= 32 & example_variable >=5)
-
+```
 ```
 
 echo=FALSE means that I did not want the code to actually show up in the final product.
