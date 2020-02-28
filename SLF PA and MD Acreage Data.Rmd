@@ -1,0 +1,309 @@
+---
+title: "SLF PA and MD Acreage Data 2019"
+author: "Chad J. Bronson"
+date: "10/23/2019"
+output:
+  rmdformats::readthedown:
+    highlight: tango
+---
+```{r, echo=FALSE, message=FALSE}
+# calling libraries and reading in files (all excel in this instance)
+# any code inside of ```{r, ...}``` will be the output. These can also be set as:
+#     ```{python, ...}```, ```{SQL, ...}```, ```{js, ...}```, ```{css, ...}```
+library(ggplot2)
+library(prettydoc)
+library(formattable)
+library(plotly)
+library(scales)
+library(readxl)
+paacres <- read_excel("C:/Users/cbron/OneDrive/Documents/Work/paacres.xlsx", sheet = "ep")
+library(readxl)
+ct <- read_excel("C:/Users/cbron/OneDrive/Documents/Work/ct.xlsx")
+library(readxl)
+property_type_table <- read_excel("C:/Users/cbron/OneDrive/Documents/Work/property type table.xlsx")
+library(readxl)
+patoacres <- read_excel("C:/Users/cbron/OneDrive/Documents/Work/patoacres.xlsx")
+library(readxl)
+pamdacrescomparison <- read_excel("C:/Users/cbron/OneDrive/Documents/Work/pamdacrescomparison.xlsx")
+```
+## Tables
+
+### Acreage totals by state, 2019:
+```{r, echo=FALSE}
+# formattable() is a package for creating better tables than the default table()
+formattable(pamdacrescomparison, align = "l")
+```
+
+### Property type / use information, PA only:
+```{r, echo=FALSE}
+# formattable() table cration
+formattable(property_type_table, align = "l", list("Acres" = color_tile("white", "pink"),
+                                                   "Saplings" = color_tile("white", "pink"),
+                                                   "Herbicide Treatments" = color_tile("white", "pink"),
+                                                   "Insecticide Treatments" = color_tile("white", "pink"),
+                                                   "Canopy Cover" = color_tile("white", "pink"),
+                                                   "Completion Time (hours)" = color_tile("white", "pink"),
+                                                   "Number of Parcels" = color_tile("white", "pink"),
+                                                   "Price ($)" = color_tile("white", "pink")))
+```
+
+### Task Order information, PA only:
+Key: 
+
+E# = Easton task order number,
+G# = Glenside task order number,
+H# = Harrisburg task order number.
+
+```{r, echo=FALSE}
+# Another formattable table
+formattable(patoacres, align = "l", list("Acres" = color_tile("white", "light green"),
+                                         "Saplings" = color_tile("white", "light green"),
+                                         "Herbicide Treatments" = color_tile("white", "light green"),
+                                         "Insecticide Treatments" = color_tile("white", "light green"),
+                                         "Canopy Cover (acres)" = color_tile("white", "light green"),
+                                         "Completion Time (hours)" = color_tile("white", "light green"),
+                                         "Number of Parcels" = color_tile("white", "light green"),
+                                         "Price ($)" = color_tile("white", "light green")))
+```
+
+
+### Acreage vs Task Order
+```{r, echo=FALSE}
+# bar chart using plotly...ggplotly(ggplot()) initializes plotly to make the visuals interactive.
+ggplotly(ggplot(ct) + aes(x = ct$`Task Order`,
+                          y = ct$Acres, fill = ct$`Task Order`) +
+           geom_bar(stat = "identity") +
+           xlab("Task Order, PA") +
+           ylab("Acres") +
+           ggtitle("Parcel Acreage per Task Order, PA") +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(axis.text.x = element_text(size = 7)) +
+           labs(fill = "Task Order") +
+           theme(axis.text.x = element_text(angle = 90)) + 
+           scale_y_continuous(breaks = seq(0, 3000, 500)))
+```
+
+### Price vs Task Order
+```{r, echo=FALSE}
+# bar chart. Indicated by geom_bar()
+ggplotly(ggplot(ct) + aes(x = ct$`Task Order`,
+                          y = ct$`Price ($)`, fill = ct$`Task Order`) +
+           geom_bar(stat = "identity") +
+           xlab("Task Order, PA") + ylab("Price") +
+           ggtitle("Price by Task Order, PA") +
+           theme(plot.title = element_text(hjust = 0.5))+
+           theme(axis.text.x = element_text(size = 7)) +
+           scale_y_continuous(breaks = seq(0, 200000, 25000), labels = dollar_format(accuracy = NULL, scale = 1)) +
+           labs(fill = "Task Order") +
+           theme(axis.text.x = element_text(angle = 90)))
+```
+
+### Acreage by Task Order with completion time:
+
+The lighter the shade of blue the more time it took to complete the task order.
+```{r, echo=FALSE}
+ggplotly(ggplot(ct) + aes(x = ct$`Task Order`,
+                          y = ct$Acres, fill = ct$`Completion Time (hours)`) +
+           geom_bar(stat = "identity") + xlab("Task Order, PA") + ylab("Acres") +
+           ggtitle("Acreage and Price by Task Order, PA") + theme(plot.title = element_text(hjust = 0.5)) +
+           theme(axis.text.x = element_text(size = 7)) + labs(fill = "Completion Time (hr)") +
+           theme(axis.text.x = element_text(angle = 90)) + scale_y_continuous(breaks = seq(0, 3000, 500)))
+```
+
+## Simple Linear Regression Models:
+Note: Regression models are meant to be helpful tools for prediction
+of future values based on all past data in the data set. The line 
+(and equation) are not meant to match the actual x,y point on the graph.
+The line is a mirror of the variance of all data points. In other words,
+the line is chosen based on the smallest average difference between all 
+points and the line. We'll be able to see which variables seem to effect
+completion time the most. If you hover over the line with your mouse you
+can see how the x variable(s) effect completion time. These can be done 
+by task order, or on an individual parcel basis. Both will yield similar results.
+
+### Task order calculations examples:
+
+### Completion time per task order vs Parcel acreage per task order:
+Estimated completion time = 13.42hr + 0.05935x
+
+R$^2$= 0.53. This value measures how close the data is to the line. The closer
+to 1 the better the fit of the line, the closer to 0 the less correlation.
+If its close to 1 it will be a better predictor than if it close to 0.
+
+Example. Easton task order 1: y = 13.42 + 0.05935x:
+
+estimated completion time(y) = 13.42 + 0.05935(20.08)
+
+estimated completion time = 14.60hrs. The actual completion time was 14.68 hours.
+
+If we look at task order 5 for easton it took 106.32 hours to complete. The estimated
+time to complete task order 5 was 28.97 hours. This shows how much variability
+there is in acres vs completion time. 
+```{r, echo=FALSE}
+# This is a linear regression. Two geom_ calls are made here to plot the points and then the line to fit.
+# Doing a linear/multiple linear regression without a visual would look like:
+#            variable name <- lm(y_axis_variable ~ x1_axis_variable, x2_axis_variable, etc...)
+ggplotly(ggplot(ct) + aes(x = ct$Acres,
+                          y = ct$`Completion Time (hours)`) +
+           geom_point(stat = "identity") + geom_smooth(method = "lm", se = FALSE) +
+           xlab("Acres per Task Order") + ylab("Completion Time (hours)") +
+           ggtitle("Task Order Acreage and Completion Time (hours)") +
+           scale_x_continuous(breaks = seq(0, 3000, 500) + theme(plot.title = element_text(hjust = 0.5))))
+```
+
+### Completion Time vs Canopy Cover per task order:
+
+Completion Time = 25.95 + 0.05599x
+
+R$^2$= 0.06
+
+Based on the 2019 PA data, this is a poor predictor with very weak correlation.
+```{r, echo=FALSE}
+ggplotly(ggplot(ct) + aes(x = ct$`Canopy Cover`,
+                          y = ct$`Completion Time (hours)`) +
+           geom_point(stat = "identity") +
+           geom_smooth(method = "lm", se = FALSE) +
+           xlab("Canopy Cover per Task Order PA") +
+           ylab("Completion Time (hours)") +
+           ggtitle("Canopy Cover per Task Order and Completion Time (hours)") +
+           scale_x_continuous(breaks = seq(0, 1200, 200)) +
+           theme(plot.title = element_text(hjust = 0.5)))
+```
+
+### Completion Time vs Price (task order):
+estimated completion time = -2.3 + 0.000978(price)
+
+R$^2$ = 0.72
+```{r, echo=FALSE}
+ggplotly(ggplot(ct) + aes(x = ct$`Price ($)`,
+                          y = ct$`Completion Time (hours)`) +
+           geom_point(stat = "identity") + geom_smooth(method = "lm", se = FALSE) +
+           xlab("Price per Task Order, PA") + ylab("Completion Time (hours)") +
+           ggtitle("Price per Task Order and Completion Time (hours)") +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           scale_x_continuous(breaks = seq(0, 200000, 20000),
+                              labels = dollar_format(accuracy = NULL, scale = 1)))
+```
+
+### Individual parcel calculations:
+
+### Saplings Treated vs Completion Time for **every parcel** (the following will
+show equations on a per parcel basis, not per task order):
+
+completion time = 1.98 + 0.027x
+
+R$^2$ = 0.37 
+```{r, echo=FALSE}
+ggplotly(ggplot(paacres) + aes(x = paacres$`Saplings Treated`,
+                               y = paacres$`Completion Time (hours)`) +
+           geom_point(stat = "identity") +
+           geom_smooth(method = "lm", se = FALSE) +
+           xlab("Saplings Treated per Parcel, PA") +
+           ylab("Completion Time (hours)") +
+           ggtitle("Saplings Treated per Parcel and Completion Time (hours)") +
+           scale_x_continuous(breaks = seq(0, 4000, 500)) +
+           theme(plot.title = element_text(hjust = 0.5)))
+```
+
+### Completion Time vs Acres for every parcel:
+
+Completion Time = 1.5 + 0.063x
+
+R$^2$= 0.56
+```{r, echo=FALSE}
+ggplotly(ggplot(paacres) + aes(x = paacres$Acres,
+                               y = paacres$`Completion Time (hours)`) +
+           geom_point(stat = "identity") +
+           geom_smooth(method = "lm", se = FALSE) +
+           xlab("Acres Treated per Parcel, PA") +
+           ylab("Completion Time (hours)") +
+           ggtitle("Acres Treated per Parcel and Completion Time (hours)") +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           scale_x_continuous(breaks = seq(0, 3000, 500)))
+```
+
+### Completion Time vs Canopy Cover:
+estimated completion time = 2.98 + 0.07x
+
+R$^2$ = 0.07
+```{r, echo=FALSE}
+ggplotly(ggplot(paacres) + aes(x = paacres$`Canopy Cover (acres)`,
+                               y = paacres$`Completion Time (hours)`) +
+           geom_point(stat = "identity") +
+           geom_smooth(method = "lm", se = FALSE) +
+           xlab("Canopy Cover per Parcel, PA") +
+           ylab("Completion Time (hours)") +
+           ggtitle("Canopy Cover per Parcel and Completion Time (hours)") +
+           theme(plot.title = element_text(hjust = 0.5)))
+```
+
+### Completion Time vs Herbicide Treatments (at least 1in DBH) for every parcel:
+
+estimated completion time = 0.53 + 0.052x
+
+R$^2$ = 0.71
+
+```{r, echo=FALSE}
+ggplotly(ggplot(paacres) + aes(x = paacres$`Herbicide Applications 1-5.99in in DBH`
+                               , y = paacres$`Completion Time (hours)`) +
+           geom_point(stat = "identity") + geom_smooth(method = "lm", se = FALSE) +
+           xlab("Herbicide Applications, PA") + ylab("Completion Time (hours)") +
+           ggtitle("Herbicide Applications (no saplings) and Completion Time") +
+           scale_x_continuous(breaks = seq(0, 3000, 500)) +
+           theme(plot.title = element_text(hjust = 0.5)))
+```
+
+### Completion Time vs Insecticide Applications for every property
+
+estimated completion time = 1.69 + 0.184x
+
+R$^2$ = 0.164
+
+```{r, echo=FALSE}
+ggplotly(ggplot(paacres) + aes(x = paacres$`Insecticide Applications 6+ in DBH`,
+                               y = paacres$`Completion Time (hours)`) +
+           geom_point(stat = "identity") + geom_smooth(method = "lm", se = FALSE) +
+           xlab("Insecticide Applications, PA") + ylab("Completion Time (hours)") +
+           ggtitle("Insecticide Applications and Completion Time") +
+           theme(plot.title = element_text(hjust = 0.5)))
+```
+
+### Completion time vs Price:
+estimated completion time = -0.4 + 0.00096x
+
+R$^2$ = 0.7983
+
+```{r, echo=FALSE}
+ggplotly(ggplot(paacres) + aes(x = paacres$`Price ($)`,
+                               y = paacres$`Completion Time (hours)`) +
+           geom_point(stat = "identity") +
+           geom_smooth(method = "lm", se = FALSE) +
+           xlab("Price") + ylab("Completion Time (hours)") +
+           ggtitle("Completion Time (hours) and Price ($)") +
+           scale_x_continuous(breaks = seq(0, 200000, 20000),
+                              labels = dollar_format(accuracy = NULL, scale = 1)) +
+           theme(plot.title = element_text(hjust = 0.5)))
+```
+
+If we examine all of the above plots we would see that Price has the highest
+R$^2$ value (0.7983) and would give us the best estimate of how long it would
+take to complete a property if we are to only use 1 predictor variable
+(not by task order, but by each property).
+
+## Multiple Linear Regression Equation:
+
+When we take all of these variables vs time and include them in the same equation
+we get the following:
+
+**estimated completion time = -0.0134 + 0.0364(acres) - 0.0333(canopy cover) -
+0.00458(saplings) - 0.000551(herbicide applications of at least 1in DBH) - 
+0.0833(insecticide applications) + 0.0009403(price)**
+
+Adjusted R$^2$ = 0.93
+
+This will give the closest and most consistent estimate overall. However since
+the data set is still small it will only be a ballpark estimate. These models
+are only applicable based on 2019 PA data, and as more parcels are added and 
+treated this would need to be updated every time. The more data, the more 
+accurate this can be if there truly is any correlation with the predictor
+variables and completion time.
