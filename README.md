@@ -5,7 +5,10 @@ The .rmd file with the code in it is an Rmarkdown file created using Rstudio.
 The data used to generate the code was from SLF PA & MD operations.
 
 Any code that looks like the following produces output when using Rmarkdown:
-``
+
+
+
+
 ```
 {r,...}
 print(example %>% filter(example_variable <= 32 & example_variable >=5)
