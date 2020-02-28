@@ -34,8 +34,8 @@ One # is the largest header, and the more you use the smaller it gets. This is h
 tabs in the ui for the final output.
 
 If there's an asterisk (*) wrapping the text then that means some sort of effect is being added to the text itself.
-```
-* for italics.
-** for bold.
-*** for italics and bold.
-```
+
+1. * for italics.
+2. ** for bold.
+3. *** for italics and bold.
+
