@@ -25,7 +25,7 @@ Many arguments can be used inside of the {r, ...} chunk for multiple different r
 
 If there is a # inside of:
     ```{r, ...}
-    #some text
+     # some text
 
     ggplot(example_ds, aes(x, y, fill) +
     geom_point() + ...
