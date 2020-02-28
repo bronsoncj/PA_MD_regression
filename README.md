@@ -35,7 +35,7 @@ tabs in the ui for the final output.
 
 If there's an asterisk (*) wrapping the text then that means some sort of effect is being added to the text itself.
 
-1. * for italics.
+1. /* for italics.
 2. ** for bold.
 3. *** for italics and bold.
 
